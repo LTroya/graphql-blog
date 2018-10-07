@@ -40,20 +40,20 @@ const typeDefs = `
     
     input CreateUserInput {
         name: String!
-        email: String!, 
+        email: String!
         age: Int
     }
     
     input CreatePostInput {
-        title: String!, 
-        body: String!, 
-        published: Boolean!, 
+        title: String!
+        body: String! 
+        published: Boolean! 
         author: ID!
     }
     
     input CreateCommentInput {
-        text: String!, 
-        author: ID!, 
+        text: String!
+        author: ID!
         post: ID!
     }
     
