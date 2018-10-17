@@ -79,7 +79,7 @@ export default {
 
         return post;
     },
-    createComment(parent, args, {db}, info) {
+    createComment(parent, args, {db, pubsub}, info) {
         const authorExists = db.users.find(user => user.id === args.data.author);
         const postExists = db.posts.find(p => p.id === args.data.post);
         if (!authorExists) throw new Error(`User ${args.data.author} does not exist`);
@@ -89,6 +89,7 @@ export default {
             ...args.data
         };
         db.comments.push(comment);
+        pubsub.publish(`comment:${args.data.post}`, {comment});
         return comment;
     },
     deleteComment(parent, args, ctx, info) {
