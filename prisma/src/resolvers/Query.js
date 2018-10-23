@@ -1,33 +1,37 @@
 export default {
-    users(parent, args, {db}, info) {
-        if (!args.query) {
-            return db.users;
+    users(parent, args, {db, prisma}, info) {
+        const opArgs = {};
+        if (args.query) {
+            opArgs.where = {
+                OR: [
+                    {name_contains: args.query},
+                    {email_contains: args.query}
+                ]
+            }
         }
-
-        return db.users.filter(user => user.name.toLowerCase().includes(args.query.toLowerCase()))
+        return prisma.query.users(opArgs, info)
     },
-    me() {
-        return {
-            id: '1234',
-            name: 'Luis Troya',
-            email: 'troyaluis56@gmail.com',
-            age: 26
+    comments(parent, args, {db, prisma}, info) {
+        const opArgs = {};
+        if (args.query) {
+            opArgs.where = {
+                OR: [
+                    {title_contains: args.query},
+                    {body_contains: args.query}
+                ]
+            };
         }
+        return prisma.query.comments(opArgs, info);
     },
-    comments(parent, args, {db}, info) {
-        if (!args.query) {
-            return db.comments;
-        }
-        return db.comments.filter(comment => comment.text.toLowerCase().includes(args.query.toLowerCase()))
-    },
-    posts(parent, args, {db}, info) {
-        if (!args.query) {
-            return db.posts;
-        }
-
-        return db.posts.filter(
-            post => post.title.toLowerCase().includes(args.query.toLowerCase())
-                || post.body.toLowerCase().includes(args.query.toLowerCase())
-        );
+    posts(parent, args, {db, prisma}, info) {
+        return prisma.query.posts(null, info)
+        // if (!args.query) {
+        //     return db.posts;
+        // }
+        //
+        // return db.posts.filter(
+        //     post => post.title.toLowerCase().includes(args.query.toLowerCase())
+        //         || post.body.toLowerCase().includes(args.query.toLowerCase())
+        // );
     }
 };

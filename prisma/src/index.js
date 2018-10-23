@@ -8,26 +8,27 @@ import {
     Comment,
     Subscription
 } from "./resolvers";
-import './prisma';
+import {prisma} from "./prisma";
 
-// const pubsub = new PubSub()
-//
-// const server = new GraphQLServer({
-//     typeDefs: './src/schema.graphql',
-//     resolvers: {
-//         Query,
-//         Post,
-//         User,
-//         Mutation,
-//         Comment,
-//         Subscription
-//     },
-//     context: {
-//         db,
-//         pubsub
-//     }
-// });
-//
-// server.start(() => {
-//     console.log('Server is up on localhost:4000!');
-// });
+const pubsub = new PubSub()
+
+const server = new GraphQLServer({
+    typeDefs: './src/schema.graphql',
+    resolvers: {
+        Query,
+        Post,
+        User,
+        Mutation,
+        Comment,
+        Subscription
+    },
+    context: {
+        db,
+        pubsub,
+        prisma
+    }
+});
+
+server.start(() => {
+    console.log('Server is up on localhost:4000!');
+});
