@@ -13,6 +13,10 @@ export default {
     },
     comments(parent, args, {db, prisma}, info) {
         const opArgs = {};
+        return prisma.query.comments(opArgs, info);
+    },
+    posts(parent, args, {db, prisma}, info) {
+        const opArgs = {};
         if (args.query) {
             opArgs.where = {
                 OR: [
@@ -22,9 +26,6 @@ export default {
             };
         }
         return prisma.query.comments(opArgs, info);
-    },
-    posts(parent, args, {db, prisma}, info) {
-        return prisma.query.posts(null, info)
         // if (!args.query) {
         //     return db.posts;
         // }
