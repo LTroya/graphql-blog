@@ -1,5 +1,5 @@
 export default {
-    users(parent, args, {db, prisma}, info) {
+    users(parent, args, {prisma}, info) {
         const opArgs = {};
         if (args.query) {
             opArgs.where = {
@@ -11,11 +11,11 @@ export default {
         }
         return prisma.query.users(opArgs, info)
     },
-    comments(parent, args, {db, prisma}, info) {
+    comments(parent, args, {prisma}, info) {
         const opArgs = {};
         return prisma.query.comments(opArgs, info);
     },
-    posts(parent, args, {db, prisma}, info) {
+    posts(parent, args, {prisma}, info) {
         const opArgs = {};
         if (args.query) {
             opArgs.where = {
@@ -25,7 +25,7 @@ export default {
                 ]
             };
         }
-        return prisma.query.comments(opArgs, info);
+        return prisma.query.posts(opArgs, info);
         // if (!args.query) {
         //     return db.posts;
         // }
