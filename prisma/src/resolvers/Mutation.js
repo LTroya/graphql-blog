@@ -1,12 +1,42 @@
-import uuidv4 from "uuid/v4";
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 export default {
-    async createUser(parent, args, {prisma}, info) {
-        const emailTaken = await prisma.exists.User({email: args.data.email});
-        if (emailTaken) {
-            throw new Error(`Email ${args.data.email} is taken.`);
+    async login(parent, args, {prisma}, info) {
+        const userExists = prisma.exists.User({email: args.data.email});
+        if (!userExists) throw new Error('Email or password are incorrect');
+        const user = prisma.query.users({
+           where: {
+                email: args.data.email
+           }
+        });
+        const {password} = user;
+        const passwordHashed = await bcrypt.hash(args.data.password, 10);
+        const isMatch = bcrypt.compare(passwordHashed, password);
+        if (isMatch) {
+            throw new Error('Email or password are incorrect');
         }
-        return prisma.mutation.createUser({data: args.data}, info);
+        return {
+            user,
+            token: jwt.sign({userId: user.id}, 'MY_SECRET_VALUE')
+        }
+    },
+    async createUser(parent, args, {prisma}, info) {
+        if (args.data.password.length < 8) {
+            throw new Error('Password must be 8 character or longer.');
+        }
+        const password = await bcrypt.hash(args.data.password, 10);
+        const user = await prisma.mutation.createUser({
+            data: {
+                ...args.data,
+                password
+            }
+        }); // Without info, it will return only scalar fields
+
+        return {
+            user,
+            token: jwt.sign({userId: user.id}, 'MY_SECRET_VALUE')
+        }
     },
     async deleteUser(parent, args, {prisma}, info) {
         const userExists = await prisma.exists.User({email: args.id});
