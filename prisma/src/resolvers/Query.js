@@ -4,7 +4,8 @@ export default {
     users(parent, args, {prisma}, info) {
         const opArgs = {
             first: args.first,
-            skip: args.skip
+            skip: args.skip,
+            after: args.after
         };
         if (args.query) {
             opArgs.where = {
@@ -16,13 +17,18 @@ export default {
         return prisma.query.users(opArgs, info)
     },
     comments(parent, args, {prisma}, info) {
-        const opArgs = {};
+        const opArgs = {
+            first: args.first,
+            skip: args.skip,
+            after: args.after
+        };
         return prisma.query.comments(opArgs, info);
     },
     posts(parent, args, {prisma}, info) {
         const opArgs = {
             first: args.first,
             skip: args.skip,
+            after: args.after,
             where: {
                 published: true
             }
@@ -37,7 +43,11 @@ export default {
     },
     myPosts(parent, args, {prisma, request}, info) {
         const userId = getUserId(request);
-        const opArgs = {};
+        const opArgs = {
+            first: args.first,
+            skip: args.skip,
+            after: args.after
+        };
         if (args.query) {
             opArgs.where = {
                 OR: [
