@@ -2,7 +2,10 @@ import getUserId from '../utils/getUserId';
 
 export default {
     users(parent, args, {prisma}, info) {
-        const opArgs = {};
+        const opArgs = {
+            first: args.first,
+            skip: args.skip
+        };
         if (args.query) {
             opArgs.where = {
                 OR: [
@@ -18,6 +21,8 @@ export default {
     },
     posts(parent, args, {prisma}, info) {
         const opArgs = {
+            first: args.first,
+            skip: args.skip,
             where: {
                 published: true
             }
