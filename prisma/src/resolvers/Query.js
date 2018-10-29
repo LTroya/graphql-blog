@@ -5,7 +5,8 @@ export default {
         const opArgs = {
             first: args.first,
             skip: args.skip,
-            after: args.after
+            after: args.after,
+            orderBy: args.orderBy
         };
         if (args.query) {
             opArgs.where = {
@@ -20,7 +21,8 @@ export default {
         const opArgs = {
             first: args.first,
             skip: args.skip,
-            after: args.after
+            after: args.after,
+            orderBy: args.orderBy
         };
         return prisma.query.comments(opArgs, info);
     },
@@ -29,6 +31,7 @@ export default {
             first: args.first,
             skip: args.skip,
             after: args.after,
+            orderBy: args.orderBy,
             where: {
                 published: true
             }
@@ -46,7 +49,8 @@ export default {
         const opArgs = {
             first: args.first,
             skip: args.skip,
-            after: args.after
+            after: args.after,
+            orderBy: args.orderBy
         };
         if (args.query) {
             opArgs.where = {
