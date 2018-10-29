@@ -12,7 +12,6 @@ export default {
         if (!user) {
             throw new Error('User doesn\'t exist');
         }
-        console.log(user);
         const isMatch = await bcrypt.compare(args.data.password, user.password);
         if (!isMatch) {
             throw new Error('Email or password are incorrect');
@@ -100,8 +99,16 @@ export default {
                 id: userId
             }
         });
+        const isPublished = prisma.exists.Post({id: args.id});
         if (!postExists) {
             throw new Error(`Unable to update post`);
+        }
+        if (isPublished && !args.data.published) {
+            console.log(await prisma.mutation.deleteManyComments({
+                where: {
+                    post: {id: args.id}
+                }
+            }));
         }
         return prisma.mutation.updatePost({
             data: args.data,
@@ -109,15 +116,14 @@ export default {
                 id: args.id
             }
         }, info);
-        // pubsub.publish('post', {
-        //     post: {
-        //         data: post,
-        //         mutation: 'UPDATED'
-        //     }
-        // });
     },
     async createComment(parent, args, {prisma, request}, info) {
         const userId = getUserId(request);
+        const postExists = await prisma.exists.Post({
+            id: args.data.post,
+            published: true
+        });
+        if (!postExists) throw new Error('Unable to find post');
         return prisma.mutation.createComment({
             data: {
                 ...args.data,
