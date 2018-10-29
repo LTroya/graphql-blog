@@ -1,6 +1,8 @@
 type Query {
     users(query: String): [User!]!
     posts(query: String): [Post!]!
+    post(id: ID!): Post!
+    myPosts(query: String): [Post!]!
     comments(query: String): [Comment!]!
     me: User!
 }
@@ -85,7 +87,7 @@ type Post {
 type User {
     id: ID!
     name: String!
-    email: String!
+    email: String
     password: String!
     posts: [Post!]!
     comments: [Comment!]!
