@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import getUserId from '../utils/getUserId';
+import generateToken from '../utils/generateToken';
+import hashPassword from '../utils/hashPassword';
 
 export default {
     async login(parent, args, {prisma}, info) {
@@ -18,14 +19,11 @@ export default {
         }
         return {
             user,
-            token: jwt.sign({userId: user.id}, 'MY_SECRET_VALUE')
+            token: generateToken(user)
         }
     },
     async createUser(parent, args, {prisma}, info) {
-        if (args.data.password.length < 8) {
-            throw new Error('Password must be 8 character or longer.');
-        }
-        const password = await bcrypt.hash(args.data.password, 10);
+        const password = await hashPassword(args.data.password);
         const user = await prisma.mutation.createUser({
             data: {
                 ...args.data,
@@ -35,7 +33,7 @@ export default {
 
         return {
             user,
-            token: jwt.sign({userId: user.id}, 'MY_SECRET_VALUE')
+            token: generateToken(user)
         }
     },
     async deleteUser(parent, args, {prisma, request}, info) {
@@ -49,11 +47,16 @@ export default {
     },
     async updateUser(parent, args, {prisma, request}, info) {
         const userId = getUserId(request);
+        if (args.data.password) {
+            args.data.password = await hashPassword(args.data.password);
+        }
         return prisma.mutation.updateUser({
             where: {
                 id: userId
             },
-            data: args.data
+            data: {
+                ...args.data
+            }
         }, info);
     },
     async createPost(parent, args, {prisma, pubsub, request}, info) {
