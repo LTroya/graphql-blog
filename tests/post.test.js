@@ -9,7 +9,7 @@ const client = getClient();
 beforeAll(() => jest.setTimeout(30000));
 beforeEach(seedDatabase);
 
-test.skip('Should only expose published posts', async () => {
+test('Should only expose published posts', async () => {
     const getPosts = gql`
         query {
             posts {
@@ -26,7 +26,7 @@ test.skip('Should only expose published posts', async () => {
     expect(response.data.posts[0].published).toBe(true);
 });
 
-test.skip('Should get all the posts for the authenticated user', async () => {
+test('Should get all the posts for the authenticated user', async () => {
     const client = getClient(userOne.jwt);
     const getMyPosts = gql`
         query {
@@ -42,7 +42,7 @@ test.skip('Should get all the posts for the authenticated user', async () => {
     expect(data.myPosts.length).toBe(2);
 });
 
-test.skip('Should be able to update own post', async () => {
+test('Should be able to update own post', async () => {
    const client = getClient(userOne.jwt);
    const updatePost = gql`
         mutation {
@@ -99,7 +99,7 @@ test('Should be able to create posts', async () => {
     expect(exists).toBe(true);
 });
 
-test.skip('Should be able to delete own post', async () => {
+test('Should be able to delete own post', async () => {
     const client = getClient(userOne.jwt);
     const deletePost = gql`
         mutation {

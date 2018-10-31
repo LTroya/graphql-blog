@@ -9,85 +9,98 @@ const client = getClient();
 beforeAll(() => jest.setTimeout(30000));
 beforeEach(seedDatabase);
 
-test.skip('Should create a new user', async () => {
-    const createUser = gql`
-        mutation {
-            createUser(
-                data: {
-                    name: "Luis"
-                    email: "troyaluis56@gmail.com"
-                    password: "password"
-                }
-            ) {
-                token,
-                user {
-                    id
-                    name
-                }
-            }
-        }
-   `;
-
-    const response = await client.mutate({
-        mutation: createUser
-    });
-    const exists = await prisma.exists.User({id: response.data.createUser.user.id});
-    expect(exists).toBe(true);
-});
-
-test.skip('Should expose public author profiles', async () => {
-    const getUsers = gql`
-        query {
-            users {
+const createUser = gql`
+    mutation($data: CreateUserInput!) {
+        createUser(
+            data: $data
+        ) {
+            token,
+            user {
                 id
                 name
                 email
             }
         }
-    `;
+    }
+`;
+
+const getUsers = gql`
+    query {
+        users {
+            id
+            name
+            email
+        }
+    }
+`;
+
+const login = gql`
+    mutation($data: LoginPostPayload) {
+        login (
+            data: $data
+        ) {
+            token
+        }
+    }
+`;
+
+test('Should create a new user', async () => {
+    const variables = {
+        data: {
+            name: "Luis",
+            email: "l2@example.com",
+            password: "password"
+        }
+    };
+
+    const response = await client.mutate({
+        mutation: createUser,
+        variables
+    });
+    const exists = await prisma.exists.User({id: response.data.createUser.user.id});
+    expect(exists).toBe(true);
+});
+
+test('Should expose public author profiles', async () => {
     const response = await client.query({query: getUsers});
     expect(response.data.users.length).toBe(1);
     expect(response.data.users[0].email).toBe(null);
 });
 
-test.skip('Should not login with bad credentials', async () => {
-    const login = gql`
-        mutation {
-            login (
-                data: {
-                    email: "l@example.com"
-                    password: "incorrect_password"
-                }
-            ) {
-                token
-            }
+test('Should not login with bad credentials', async () => {
+    const variables = {
+        data: {
+            email: "troyaluis56@gmail.com",
+            password: "incorrect_password"
         }
-    `;
+    };
+
     expect(
-        client.mutate({mutation: login})
+        client.mutate({
+            mutation: login,
+            variables
+        })
     ).rejects.toThrow();
 });
 
-test.skip('Should not create an user with invalid password', async () => {
-    const createUser = gql`
-        mutation {
-            createUser (
-                data: {
-                    name: "Jen"
-                    email: "jen@example.com"
-                    password: "123456"
-                }
-            ) {
-                token
-            }
+test('Should not create an user with invalid password', async () => {
+    const variables = {
+        data: {
+            name: "Jen",
+            email: "j@example.com",
+            password: "123456"
         }
-    `;
+    };
+
     expect(
-        client.mutate({mutation: createUser})
+        client.mutate({
+            mutation: createUser,
+            variables
+        })
     ).rejects.toThrow();
 });
 
-test.skip('Should fetch user profile', async () => {
+test('Should fetch user profile', async () => {
     const client = getClient(userOne.jwt);
     const getProfile = gql`
         query {
