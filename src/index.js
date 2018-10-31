@@ -1,13 +1,13 @@
 import "@babel/polyfill/noConflict";
 import {GraphQLServer, PubSub} from 'graphql-yoga';
 import db from './db';
-import {resolvers, fragmentReplacements} from  "./resolvers";
+import {resolvers, fragmentReplacements} from "./resolvers/index";
 import {prisma} from "./prisma";
 
 const pubsub = new PubSub();
 
 const server = new GraphQLServer({
-    typeDefs: './prisma/src/schema.graphql',
+    typeDefs: './src/schema.graphql',
     resolvers: resolvers,
     context(request) {
         return {

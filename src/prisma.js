@@ -1,8 +1,8 @@
 import {Prisma} from 'prisma-binding';
-import {fragmentReplacements} from "./resolvers";
+import {fragmentReplacements} from "./resolvers/index";
 
 const prisma = new Prisma({
-    typeDefs: 'prisma/src/generated/prisma.graphql',
+    typeDefs: './src/generated/prisma.graphql',
     endpoint: process.env.PRISMA_ENDPOINT,
     secret: 'SUPER_SECRET_VALUE',
     fragmentReplacements
