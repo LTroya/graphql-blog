@@ -10,7 +10,7 @@ type Query {
 }
 
 type Mutation {
-    login(data: LoginPostPayload): AuthPayload!
+    login(data: LoginUserInput): AuthPayload!
     createUser(data: CreateUserInput!): AuthPayload!
     deleteUser: User!
     updateUser(data: UpdateUserInput!): User!
@@ -33,7 +33,7 @@ type Subscription {
     myPost: PostSubscriptionPayload!
 }
 
-input LoginPostPayload {
+input LoginUserInput {
     email: String!
     password: String!
 }

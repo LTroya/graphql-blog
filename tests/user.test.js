@@ -1,48 +1,13 @@
 import 'cross-fetch/polyfill';
-import {gql} from 'apollo-boost';
 import {prisma} from "../src/prisma";
 import {seedDatabase, userOne} from "./utils/seedDatabase";
 import {getClient} from "./utils/getClient";
+import {getUsers, getProfile, createUser, login} from "../src/utils/operations";
 
 const client = getClient();
 
 beforeAll(() => jest.setTimeout(300000));
 beforeEach(seedDatabase);
-
-const createUser = gql`
-    mutation($data: CreateUserInput!) {
-        createUser(
-            data: $data
-        ) {
-            token,
-            user {
-                id
-                name
-                email
-            }
-        }
-    }
-`;
-
-const getUsers = gql`
-    query {
-        users {
-            id
-            name
-            email
-        }
-    }
-`;
-
-const login = gql`
-    mutation($data: LoginPostPayload) {
-        login (
-            data: $data
-        ) {
-            token
-        }
-    }
-`;
 
 test('Should create a new user', async () => {
     const variables = {
@@ -102,15 +67,6 @@ test('Should not create an user with invalid password', async () => {
 
 test('Should fetch user profile', async () => {
     const client = getClient(userOne.jwt);
-    const getProfile = gql`
-        query {
-            me {
-                id
-                name
-                email
-            }
-        }
-    `;
     const {data} = await client.query({query: getProfile});
     expect(data.me.id).toBe(userOne.user.id);
     expect(data.me.name).toBe(userOne.user.name);

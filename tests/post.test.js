@@ -1,8 +1,8 @@
 import 'cross-fetch/polyfill';
-import {gql} from 'apollo-boost';
 import {prisma} from "../src/prisma";
 import {seedDatabase, userOne, postOne} from "./utils/seedDatabase";
 import {getClient} from "./utils/getClient";
+import {getPosts, getMyPosts, updatePost, createPost, deletePost} from '../src/utils/operations';
 
 const client = getClient();
 
@@ -10,17 +10,6 @@ beforeAll(() => jest.setTimeout(300000));
 beforeEach(seedDatabase);
 
 test('Should only expose published posts', async () => {
-    const getPosts = gql`
-        query {
-            posts {
-                id
-                title
-                published
-                body
-            }
-            
-        }
-   `;
     const response = await client.query({query: getPosts});
     const onlyPublished = response.data.posts.every(post => post.published);
     expect(onlyPublished).toBe(true);
@@ -28,42 +17,22 @@ test('Should only expose published posts', async () => {
 
 test('Should get all the posts for the authenticated user', async () => {
     const client = getClient(userOne.jwt);
-    const getMyPosts = gql`
-        query {
-            myPosts {
-                id
-                title
-                body
-                published
-                author {
-                    name
-                    id
-                }
-            }
-        }
-    `;
     const {data} = await client.query({query: getMyPosts});
     expect(data.myPosts.length).toBe(2);
 });
 
 test('Should be able to update own post', async () => {
-   const client = getClient(userOne.jwt);
-   const updatePost = gql`
-        mutation {
-            updatePost(
-                id: "${postOne.post.id}"
-                data: {
-                    published: true
-                }
-            ) {
-                id
-                title
-                body
-                published
-            }
-        }    
-   `;
-    const {data} = await client.mutate({mutation: updatePost});
+    const client = getClient(userOne.jwt);
+    const variables = {
+        data: {
+            published: true
+        },
+        id: postOne.post.id
+    };
+    const {data} = await client.mutate({
+        mutation: updatePost,
+        variables
+    });
     const exists = await prisma.exists.Post({id: postOne.post.id, published: true});
 
     expect(data.updatePost.published).toBe(true);
@@ -73,23 +42,17 @@ test('Should be able to update own post', async () => {
 test('Should be able to create posts', async () => {
     const client = getClient(userOne.jwt);
     const title = 'My new incredible post';
-    const createPost = gql`
-        mutation {
-            createPost(
-                data: {
-                    title: "${title}"
-                    body: "Some body..."
-                    published: false
-                }
-            ) {
-                id
-                title
-                body
-                published
-            }
+    const variables = {
+        data: {
+            title,
+            body: "Some body...",
+            published: false
         }
-    `;
-    const {data} = await client.mutate({mutation: createPost});
+    };
+    const {data} = await client.mutate({
+        mutation: createPost,
+        variables
+    });
     const exists = await prisma.exists.Post({id: data.createPost.id});
     const posts = await prisma.query.posts({
         where: {
@@ -105,16 +68,13 @@ test('Should be able to create posts', async () => {
 
 test('Should be able to delete own post', async () => {
     const client = getClient(userOne.jwt);
-    const deletePost = gql`
-        mutation {
-            deletePost(
-                id: "${postOne.post.id}"
-            ) {
-                id
-            }
-        }
-    `;
-    await client.mutate({mutation: deletePost});
+    const variables = {
+        id: postOne.post.id
+    };
+    await client.mutate({
+        mutation: deletePost,
+        variables
+    });
     const exists = await prisma.exists.Post({id: postOne.post.id});
     expect(exists).toBe(false);
 });
