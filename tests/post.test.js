@@ -1,8 +1,8 @@
 import 'cross-fetch/polyfill';
 import {prisma} from "../src/prisma";
-import {seedDatabase, userOne, postOne} from "./utils/seedDatabase";
+import {seedDatabase, userOne, postOne, commentOne, postTwo} from "./utils/seedDatabase";
 import {getClient} from "./utils/getClient";
-import {getPosts, getMyPosts, updatePost, createPost, deletePost} from '../src/utils/operations';
+import {getPosts, getMyPosts, updatePost, createPost, deletePost, subscribeToPosts} from '../src/utils/operations';
 
 const client = getClient();
 
@@ -77,4 +77,17 @@ test('Should be able to delete own post', async () => {
     });
     const exists = await prisma.exists.Post({id: postOne.post.id});
     expect(exists).toBe(false);
+});
+
+// TODO: This is not working. "iterator.next" is not a function
+test.skip('Should subscribe to changes for published posts', async (done) => {
+    const client = getClient(userOne.jwt);
+    client.subscribe({query: subscribeToPosts}).subscribe({
+        next(response) {
+            expect(response.data.post.mutation).toBe('DELETED');
+            done();
+        }
+    });
+
+    await prisma.mutation.deletePost({where: {id: postTwo.post.id}})
 });

@@ -3,7 +3,7 @@ import {gql} from 'apollo-boost';
 import {prisma} from "../src/prisma";
 import {seedDatabase, userOne, postTwo, commentOne, commentTwo} from "./utils/seedDatabase";
 import {getClient} from "./utils/getClient";
-import {deleteComment, createComment, updateComment} from "../src/utils/operations";
+import {deleteComment, createComment, updateComment, subscribeToComments} from "../src/utils/operations";
 
 const client = getClient();
 
@@ -63,21 +63,21 @@ test('Should not be able to update other user comment', async () => {
 });
 
 test('Should be able to delete own comment', async () => {
-     const client = getClient(userOne.jwt);
-     const variables = {
-         id: commentOne.comment.id
-     };
-     await client.mutate({
-         mutation: deleteComment,
-         variables
-     });
-     const exists = await prisma.exists.Comment({
-         id: commentOne.comment.id,
-         post: {
-             id: postTwo.post.id
-         }
-     });
-     expect(exists).toBe(false);
+    const client = getClient(userOne.jwt);
+    const variables = {
+        id: commentOne.comment.id
+    };
+    await client.mutate({
+        mutation: deleteComment,
+        variables
+    });
+    const exists = await prisma.exists.Comment({
+        id: commentOne.comment.id,
+        post: {
+            id: postTwo.post.id
+        }
+    });
+    expect(exists).toBe(false);
 });
 
 test('Should not be able to delete other user\'s comment', async () => {
@@ -89,4 +89,20 @@ test('Should not be able to delete other user\'s comment', async () => {
         mutation: deleteComment,
         variables
     })).rejects.toThrow();
+});
+
+// TODO: This is not working. "iterator.next" is not a function
+test.skip('Should subscribe to comments for a post', async (done) => {
+    const client = getClient(userOne.jwt);
+    const variables = {
+        postId: postTwo.post.id
+    };
+    client.subscribe({query: subscribeToComments, variables}).subscribe({
+        next(response) {
+            expect(response.data.comment.mutation).toBe('DELETED');
+            done();
+        }
+    });
+
+    await prisma.mutation.deleteComment({where: {id: commentOne.comment.id}})
 });
