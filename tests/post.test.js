@@ -9,7 +9,7 @@ const client = getClient();
 beforeAll(() => jest.setTimeout(300000));
 beforeEach(seedDatabase);
 
-test.skip('Should only expose published posts', async () => {
+test('Should only expose published posts', async () => {
     const getPosts = gql`
         query {
             posts {
@@ -22,11 +22,11 @@ test.skip('Should only expose published posts', async () => {
         }
    `;
     const response = await client.query({query: getPosts});
-    expect(response.data.posts.length).toBe(1);
-    expect(response.data.posts[0].published).toBe(true);
+    const onlyPublished = response.data.posts.every(post => post.published);
+    expect(onlyPublished).toBe(true);
 });
 
-test.skip('Should get all the posts for the authenticated user', async () => {
+test('Should get all the posts for the authenticated user', async () => {
     const client = getClient(userOne.jwt);
     const getMyPosts = gql`
         query {
@@ -35,6 +35,10 @@ test.skip('Should get all the posts for the authenticated user', async () => {
                 title
                 body
                 published
+                author {
+                    name
+                    id
+                }
             }
         }
     `;
@@ -42,7 +46,7 @@ test.skip('Should get all the posts for the authenticated user', async () => {
     expect(data.myPosts.length).toBe(2);
 });
 
-test.skip('Should be able to update own post', async () => {
+test('Should be able to update own post', async () => {
    const client = getClient(userOne.jwt);
    const updatePost = gql`
         mutation {
@@ -66,7 +70,7 @@ test.skip('Should be able to update own post', async () => {
     expect(exists).toBe(true);
 });
 
-test.skip('Should be able to create posts', async () => {
+test('Should be able to create posts', async () => {
     const client = getClient(userOne.jwt);
     const title = 'My new incredible post';
     const createPost = gql`
@@ -99,7 +103,7 @@ test.skip('Should be able to create posts', async () => {
     expect(exists).toBe(true);
 });
 
-test.skip('Should be able to delete own post', async () => {
+test('Should be able to delete own post', async () => {
     const client = getClient(userOne.jwt);
     const deletePost = gql`
         mutation {

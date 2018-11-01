@@ -50,18 +50,18 @@ export default {
             first: args.first,
             skip: args.skip,
             after: args.after,
-            orderBy: args.orderBy
-        };
-        if (args.query) {
-            opArgs.where = {
-                OR: [
-                    {title_contains: args.query},
-                    {body_contains: args.query}
-                ],
+            orderBy: args.orderBy,
+            where: {
                 author: {
                     id: userId
                 }
-            };
+            }
+        };
+        if (args.query) {
+            opArgs.where.OR = [
+                {title_contains: args.query},
+                {body_contains: args.query}
+            ]
         }
         return prisma.query.posts(opArgs, info);
     },

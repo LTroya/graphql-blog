@@ -5,7 +5,7 @@ import {prisma} from "../../src/prisma";
 const userOne = {
     input: {
         name: "Luis",
-        email: "troyaluis56@gmail.com",
+        email: "l@gmail.com",
         password: "password"
     },
     user: undefined,

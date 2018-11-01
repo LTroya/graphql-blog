@@ -35,7 +35,6 @@
   },
   "jest": {
     "globalSetup": "./tests/jest/globalSetup.js",
-    "globalTeardown": "./tests/jest/globalTeardown.js",
-    "setTimeout": 50000
+    "globalTeardown": "./tests/jest/globalTeardown.js"
   }
 }

@@ -44,11 +44,11 @@ const login = gql`
     }
 `;
 
-test.skip('Should create a new user', async () => {
+test('Should create a new user', async () => {
     const variables = {
         data: {
             name: "Luis",
-            email: "l2@example.com",
+            email: "l@example.com",
             password: "password"
         }
     };
@@ -61,16 +61,16 @@ test.skip('Should create a new user', async () => {
     expect(exists).toBe(true);
 });
 
-test.skip('Should expose public author profiles', async () => {
+test('Should expose public author profiles', async () => {
     const response = await client.query({query: getUsers});
-    expect(response.data.users.length).toBe(1);
-    expect(response.data.users[0].email).toBe(null);
+    const noEmails = response.data.users.every(user => !user.email);
+    expect(noEmails).toBe(true);
 });
 
-test.skip('Should not login with bad credentials', async () => {
+test('Should not login with bad credentials', async () => {
     const variables = {
         data: {
-            email: "troyaluis56@gmail.com",
+            email: userOne.input.email,
             password: "incorrect_password"
         }
     };
@@ -83,7 +83,7 @@ test.skip('Should not login with bad credentials', async () => {
     ).rejects.toThrow();
 });
 
-test.skip('Should not create an user with invalid password', async () => {
+test('Should not create an user with invalid password', async () => {
     const variables = {
         data: {
             name: "Jen",
@@ -100,7 +100,7 @@ test.skip('Should not create an user with invalid password', async () => {
     ).rejects.toThrow();
 });
 
-test.skip('Should fetch user profile', async () => {
+test('Should fetch user profile', async () => {
     const client = getClient(userOne.jwt);
     const getProfile = gql`
         query {
