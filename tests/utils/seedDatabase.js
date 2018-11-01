@@ -1,12 +1,14 @@
-import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
 import {prisma} from "../../src/prisma";
+import bcrypt from "bcryptjs";
+
+const hashPasswordSync = password => bcrypt.hashSync(password, 10);
 
 const userOne = {
     input: {
         name: "Luis",
         email: "l@gmail.com",
-        password: "password"
+        password: hashPasswordSync('password')
     },
     user: undefined,
     jwt: undefined
@@ -16,10 +18,24 @@ const userTwo = {
     input: {
         name: 'Francisco',
         email: 'f@example.com',
-        password: 'password'
+        password: hashPasswordSync('password')
     },
     user: undefined,
     jwt: undefined
+};
+
+const commentOne = {
+    input: {
+        text: 'Awesome comment #1'
+    },
+    comment: undefined,
+};
+
+const commentTwo = {
+    input: {
+        text: 'I am incredible!'
+    },
+    comment: undefined
 };
 
 const postOne = {
@@ -91,6 +107,36 @@ const seedDatabase = async () => {
            }
        }
     });
+    commentOne.comment = await prisma.mutation.createComment({
+        data: {
+            ...commentOne.input,
+            author: {
+                connect: {
+                    id: userOne.user.id
+                }
+            },
+            post: {
+                connect: {
+                    id: postTwo.post.id
+                }
+            }
+        }
+    });
+    commentTwo.comment = await prisma.mutation.createComment({
+       data: {
+           ...commentTwo.input,
+           author: {
+               connect: {
+                   id: userTwo.user.id
+               }
+           },
+           post: {
+               connect: {
+                   id: postTwo.post.id
+               }
+           }
+       }
+    });
 };
 
-export {seedDatabase, userOne, userTwo, postOne, postTwo};
+export {seedDatabase, userOne, userTwo, postOne, postTwo, commentOne, commentTwo};

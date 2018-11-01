@@ -1,4 +1,5 @@
 import {gql} from 'apollo-boost';
+import {commentOne} from "../../tests/utils/seedDatabase";
 
 const createUser = gql`
     mutation($data: CreateUserInput!) {
@@ -109,6 +110,39 @@ const deletePost = gql`
     }
 `;
 
+const createComment = gql`
+    mutation($data: CreateCommentInput!) {
+        createComment(
+            data: $data
+        ) {
+            text
+            id
+        }
+    }
+`;
+
+const deleteComment = gql`
+    mutation($id: ID!) {
+        deleteComment(
+            id: $id
+        ) {
+            id
+        }
+    }
+ `;
+
+const updateComment = gql`
+    mutation($id: ID!, $data: UpdateCommentInput) {
+        updateComment(
+            data: $data,
+            id: $id
+        ){
+            id
+            text
+        }
+    }
+`;
+
 export {
     createUser,
     getUsers,
@@ -118,5 +152,8 @@ export {
     getMyPosts,
     updatePost,
     createPost,
-    deletePost
+    deletePost,
+    createComment,
+    updateComment,
+    deleteComment
 }

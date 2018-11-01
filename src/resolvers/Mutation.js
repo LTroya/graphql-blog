@@ -167,7 +167,8 @@ export default {
             }
         });
         if (!commentExists) throw new Error('Unable to update comment');
-        return prisma.mutation.deleteComment({
+        console.log(args.data);
+        return prisma.mutation.updateComment({
             where: {
                 id: args.id
             },
