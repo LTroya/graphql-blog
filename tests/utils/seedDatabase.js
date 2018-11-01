@@ -12,6 +12,16 @@ const userOne = {
     jwt: undefined
 };
 
+const userTwo = {
+    input: {
+        name: 'Francisco',
+        email: 'f@example.com',
+        password: 'password'
+    },
+    user: undefined,
+    jwt: undefined
+};
+
 const postOne = {
     input: {
         title: 'Graphql testing for fun',
@@ -21,8 +31,18 @@ const postOne = {
     post: undefined
 };
 
+const postTwo = {
+    input: {
+        title: 'Some title',
+        body: '...',
+        published: true
+    },
+    post: undefined
+};
+
 const seedDatabase = async () => {
     // Delete test data
+    await prisma.mutation.deleteManyComments();
     await prisma.mutation.deleteManyPosts();
     await prisma.mutation.deleteManyUsers();
 
@@ -31,6 +51,12 @@ const seedDatabase = async () => {
         data: userOne.input
     });
     userOne.jwt = jwt.sign({userId: userOne.user.id}, process.env.JWT_SECRET);
+
+    // Create user two
+    userTwo.user = await prisma.mutation.createUser({
+        data: userTwo.input
+    });
+    userTwo.jwt = jwt.sign({userId: userTwo.user.id}, process.env.JWT_SECRET);
 
     // Create post one
     postOne.post = await prisma.mutation.createPost({
@@ -54,7 +80,17 @@ const seedDatabase = async () => {
                 }
             }
         }
-    })
+    });
+    postTwo.post = await prisma.mutation.createPost({
+       data: {
+           ...postTwo.input,
+           author: {
+               connect: {
+                   id: userTwo.user.id
+               }
+           }
+       }
+    });
 };
 
-export {seedDatabase, userOne, postOne};
+export {seedDatabase, userOne, userTwo, postOne, postTwo};
